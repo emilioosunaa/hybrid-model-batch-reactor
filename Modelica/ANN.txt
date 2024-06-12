@@ -1,0 +1,66 @@
+package HybridModel
+
+  model BatchReactor
+    // Parameters
+    parameter Real T = 298.15 "Temperature [K]";
+    parameter Real QCat = 1 "Amount of catalyst [mL]";
+    parameter Real R = 8.314 "Universal gas constant [J mol^-1 K^-1]";
+    parameter Real k0e = 1e3 "Pre-exponential factor for esterification [m^3 mol^-1 s^-1]";
+    parameter Real k0h = 1e3 "Pre-exponential factor for hydrolysis [m^3 mol^-1 s^-1]";
+    parameter Real Eae = 50000 "Activation energy for esterification [J mol^-1]";
+    parameter Real Eah = 60000 "Activation energy for hydrolysis [J mol^-1]";
+  
+    // State variables
+    Real CAA(start=1) "Concentration of acetic acid [mol m^-3]";
+    Real CM(start=1) "Concentration of methanol [mol m^-3]";
+    Real CMA(start=0) "Concentration of methyl acetate [mol m^-3]";
+    Real CW(start=0) "Concentration of water [mol m^-3]";
+  
+    // Reaction rate [mol s^-1 m^-3]
+    Real r;
+  
+  equation
+    // Define the reaction rate
+    r = k0e * QCat * exp(-Eae / (R * T)) * CAA * CM - k0h * QCat * exp(-Eah / (R * T)) * CMA * CW;
+  
+    // Mass balance equations
+    der(CAA) = -r;
+    der(CM) = -r;
+    der(CMA) = r;
+    der(CW) = r;
+  
+  end BatchReactor;
+  
+  model ANNBatchReactor
+    // Parameters for ANN (imported from trained model)
+    parameter Real weights1[8, 7];
+    parameter Real biases1[8];
+    parameter Real weights2[4, 8];
+    parameter Real biases2[4];
+    
+    // Input and output variables
+    Real input[7];
+    Real hidden[8];
+    Real output[4];
+    
+    // BatchReactor instance
+    BatchReactor reactor(T=input[2], QCat=input[3], k0e=4.21, k0h=0.322, Eae=53804.0, Eah=52584.0, R=8.314);
+    
+  equation
+    // Define the input from reactor
+    input = {time, reactor.T, reactor.QCat, reactor.CAA, reactor.CM, reactor.CMA, reactor.CW};
+    
+    // First layer (input to hidden)
+    for i in 1:8 loop
+      hidden[i] = tanh(weights1[i,:] * input + biases1[i]);
+    end for;
+    
+    // Second layer (hidden to output)
+    for i in 1:4 loop
+      output[i] = tanh(weights2[i,:] * hidden + biases2[i]);
+    end for;
+    
+    // Use the output for further analysis or control
+  end ANNBatchReactor;
+
+end HybridModel;
