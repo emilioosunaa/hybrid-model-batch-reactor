@@ -49,11 +49,3 @@ for i = 1:rows
     end
 
 end
-
-% Split data into training, validation, and testing sets
-XTrain = X(trainInd,:);
-YTrain = Y(trainInd,:);
-XVal = X(valInd,:);
-YVal = Y(valInd,:);
-XTest = X(testInd:end,:);
-YTest = Y(testInd:end,:);

@@ -1,69 +1,23 @@
 %% General preparations 
-%clear 
+clear 
 close all
 clc
 
 %% Trainning of the hybrid model
 if ~exist('netAceticAcid', 'var') || ~exist('netMethanol', 'var') || ...
    ~exist('netMethylAcetate', 'var') || ~exist('netWater', 'var')
-    hybridmodel_training;
+    hybridModelTraining;
 
 else
     fprintf('Neural networks already exist. Skipping training.\n');
 end
 
 %% Generation of database for testing
-rows = height(initialConditionsTest);
-
-% Operation conditions
-V = 0.001;                                          % [m^3]
-dt = 2000;                                          % [s] 
-CAA0 = initialConditionsTest(:, 1) ./ V;           % [mol]
-CM0 = initialConditionsTest(:, 2) ./ V;            % [mol]
-CMA0 = 0.00;                                        % [mol]
-CW0 = initialConditionsTest(:, 3) ./ V;            % [mol]
-QCat = initialConditionsTest(:, 4);                % [mL]
-T = initialConditionsTest(:, 5) + 273.15;          % [K]
-
-% Initialization of the data base
-columns = 7;
-XTest = cell(1, columns);
-YTest = cell(1, 4);
-tspan = linspace(0, dt, 1000);
-
-for i = 1:rows
-    % Initial conditions (C_AA, C_M, C_MA, C_W)
-    y0 = [CAA0(i), CM0(i), CMA0, CW0(i)];
-
-    % ODE solution
-    [t, y] = ode45(@batchReactor, tspan, y0, [], T(i), QCat(i));
-    
-    % Saving the data
-    XTest{i, 1} = t;
-    XTest{i, 2} = zeros(size(t)) + T(i);
-    XTest{i, 3} = zeros(size(t)) + QCat(i);
-    XTest{i, 4} = y(:, 1);
-    XTest{i, 5} = y(:, 2);
-    XTest{i, 6} = y(:, 3);
-    XTest{i, 7} = y(:, 4);
-
-    % Rolling XTest so t+1 data for YTest is obtained
-    for col = 4:columns
-        % Extract the current data for the specific experiment and column
-        currentData = XTest{i, col};
-
-        % Shift data, assuming there is enough data
-        YTest{i, col - 3} = [currentData(2:end); currentData(end)];
-    end
-end
-
 XTest = cell2mat(XTest);
 YTest = cell2mat(YTest);
 
 % Normalization of data
-minValueX = [0 273 0 0 0 0 0];
-maxValueX = [1 373 15 20/V 20/V 20/V 20/V];
-XTestNormalized = (XTest - minValueX) ./ (maxValueX - minValueX);
+[XTestNormalized, YTestNormalized] = normalizeData(XTest, YTest);
 
 %% Testing of the hybrid model
 % Making predictions
@@ -73,10 +27,6 @@ YPredMethylAcetateNormalized = netMethylAcetate(XTestNormalized');
 YPredWaterNormalized = netWater(XTestNormalized');
 
 YPredNormalized = [YPredAceticAcidNormalized; YPredMethanolNormalized; YPredMethylAcetateNormalized; YPredWaterNormalized]';
-
-minValueY = [0 0 0 0];
-maxValueY = [20/V 20/V 20/V 20/V];
-YTestNormalized = (YTest - minValueY) ./ (maxValueY - minValueY);
 
 %% Calculate evaluation metrics
 % Initialize MSE
@@ -95,6 +45,8 @@ mse = mse / (4 * nSamples);
 fprintf('Mean Squared Error: %.6e\n', mse);
 
 %% Plotting predictions
+minValueY = [0 0 0 0];
+maxValueY = [20/V 20/V 20/V 20/V];
 downsampleFactor = 50;
 YPred = YPredNormalized .* (maxValueY - minValueY) + minValueY;
 YTestDownsampled = YTest(15001:downsampleFactor:16000, :)*0.001;
