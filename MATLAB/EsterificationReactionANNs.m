@@ -101,7 +101,7 @@ fprintf('Mean Squared Error from testing: %.6e\n', mseTest);
 fprintf('Mean Squared Error from validation: %.6e\n', mseVal);
 
 % Plot predictions
-plotPredictions(YTestPredNormalized, XTest, YTest, V, 50);
+plotPredictions(YTestPredNormalized, XTest, YTest, 16, V, 50);
 
 % Save the trained networks
 save('trained_networks.mat', 'networks');
