@@ -48,7 +48,7 @@ networks = containers.Map();
 YTestPredNormalized = zeros(size(YTestNormalized));
 YValPredNormalized = zeros(size(YValNormalized));
 
-% Three hidden layers with 8 neurons each network, activation function as sigmoid for each layer
+% One hidden layer with 8 neurons each network, activation function as sigmoid for each layer
 hiddenLayerSize = [8];
 for i = 1:length(speciesNames)
     name = speciesNames{i};

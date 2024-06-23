@@ -22,8 +22,8 @@ function dy = batchReactor(t, y, T, QCat)
     
     % Mass balance equations
     dy = zeros(4, 1);
-    dy(1) = -r;       % dCAA_over_dt
-    dy(2) = -r;       % dCM_over_dt
-    dy(3) = r;        % dCMA_over_dt
-    dy(4) = r;        % dCW_over_dt
+    dy(1) = -r;       % dCAA_dt
+    dy(2) = -r;       % dCM_dt
+    dy(3) = r;        % dCMA_dt
+    dy(4) = r;        % dCW_dt
 end

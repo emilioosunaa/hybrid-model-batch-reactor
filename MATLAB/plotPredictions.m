@@ -12,7 +12,7 @@ function plotPredictions(YPredNormalized, X, Y, run, V, downsampleFactor)
     minValueY = [0 0 0 0];
     maxValueY = [20/V 20/V 20/V 20/V];
     YPred = YPredNormalized .* (maxValueY - minValueY) + minValueY;
-    YDownsampled = Y(15001:downsampleFactor:16000, :)*0.001;
+    YDownsampled = Y(runIndex:downsampleFactor:endIndex, :)*0.001;
     YPredDownsampled = YPred(runIndex:downsampleFactor:endIndex, :)*0.001;
     timeDownsampled = X(runIndex:downsampleFactor:endIndex, 1);
     
