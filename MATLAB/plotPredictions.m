@@ -1,6 +1,6 @@
 %% Plotting predictions
 % For a specific run
-function plotPredictions(YPredNormalized, X, Y, run, V, downsampleFactor)
+function plotPredictions(YPredNormalized, X, Y, tspan, run, V, downsampleFactor)
     if run == 1
         runIndex = 1;
     else
@@ -14,7 +14,7 @@ function plotPredictions(YPredNormalized, X, Y, run, V, downsampleFactor)
     YPred = YPredNormalized .* (maxValueY - minValueY) + minValueY;
     YDownsampled = Y(runIndex:downsampleFactor:endIndex, :)*0.001;
     YPredDownsampled = YPred(runIndex:downsampleFactor:endIndex, :)*0.001;
-    timeDownsampled = X(runIndex:downsampleFactor:endIndex, 1);
+    timeDownsampled = tspan(runIndex:downsampleFactor:endIndex, 1);
     
     figure;
     hold all

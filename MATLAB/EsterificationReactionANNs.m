@@ -9,7 +9,7 @@ clc
 initialConditions = readmatrix('initial_conditions.csv');
 
 V = 0.001;   % [m^3]
-[X, Y] = generateDatabase(initialConditions, V);
+[X, Y, tspan] = generateDatabase(initialConditions, V);
 
 % Split data into training, validation, and testing sets
 trainInd = 1:16;
@@ -117,14 +117,14 @@ function [XDownsampled, YDownsampled] = downsampleData(X, Y, downsampleFactor)
     
     for i = 1:rows
          % Downsampling Y
-        for col = 4:columns
-            currentVector = Y{i, col - 3};
+        for col = 3:columns
+            currentVector = Y{i, col - 2};
     
             % Downsample the vector by selecting every {downsampleFactor}th element
             downsampledVector = currentVector(1:downsampleFactor:end);
     
             % Store the downsampled vector back in the corresponding position
-            YDownsampled{i, col - 3} = downsampledVector;
+            YDownsampled{i, col - 2} = downsampledVector;
         end
         
         % Downsampling X

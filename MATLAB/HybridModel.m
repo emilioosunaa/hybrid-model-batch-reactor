@@ -32,7 +32,7 @@ FM0 = initialConditions(:, 6);              % [mol s^-1]
 V0 = 0.001;                                 % [m^-3]
 
 % Time settings
-dt = 1.0;                                   % [s]
+dt = 0.5;                                   % [s]
 feedingTime = initialConditions(1, 5);      % [s] CHANGE THIS
 totalTime = 2000;                           % [s]
 numStepsFeed = feedingTime / dt;
@@ -97,7 +97,7 @@ for t = 1:numStepsTotal
     
     % Step 1: Compute concentration changes using ANN models
     C_i0_t1 = calculateConcentrationChanges(networks, inputs);
-    
+
     % Step 2: Add the feeding term (only during feeding time)
     if t <= numStepsFeed
         NM(t + 1) = C_i0_t1(2) * V(t) + FM * dt;
@@ -108,13 +108,14 @@ for t = 1:numStepsTotal
     NAA(t + 1) = C_i0_t1(1) * V(t);
     NMA(t + 1) = C_i0_t1(3) * V(t);
     NW(t + 1) = C_i0_t1(4) * V(t);
-    
+
     % Step 3: Correction of the volume
     if t <= numStepsFeed
         V(t + 1) = V(t) + FM * MM / rhoM * dt;
     else
         V(t + 1) = V(t);
     end
+    
 end
 
 % Compute final concentrations
